@@ -1,0 +1,134 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <limits>
+
+class Todo {
+	std::string description;
+	bool completed {false};
+
+	public:
+		Todo(std::string description): description {description} {}
+		std::string get_todo() const {
+			return description;
+		};
+		bool get_status() const {
+			return completed;
+		}
+		void change_status() {
+			completed = !completed;
+		}
+};
+
+
+void ruler(unsigned int length) {
+	std::string digits {"1234567890"};
+	for(size_t i {0}; i < length; ++i)
+		std::cout<<digits;
+	std::cout<<std::endl;
+}
+
+void clear_input() {
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void display_linebreak(unsigned int DISPLAY_WIDTH) {
+	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
+}
+
+void header(std::string HEADING, int HEADING_WIDTH, unsigned int DISPLAY_WIDTH, void (*display_linebreak)(unsigned int)) {
+	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
+	display_linebreak(DISPLAY_WIDTH);
+}
+
+void display_todos(std::vector<Todo> const &todos, int TODO_WIDTH) {
+	for(size_t i {0}; i < todos.size(); ++i)
+		std::cout<<std::left<<std::setw(4)<<i+1<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<std::right<<std::setw(13)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+}
+
+void display_menu(std::vector<std::string> menu_items, int DISPLAY_WIDTH) {
+	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
+	for(auto item:menu_items)
+		std::cout<<item<<std::endl;
+}
+
+void create_todo(std::vector<Todo> &todos) {
+	std::string description;
+	std::cout<<"Enter the todo: ";
+	std::getline(std::cin, description);
+	Todo todo {description};
+	todos.push_back(todo);
+}
+
+void delete_todo(std::vector<Todo> &todos) {
+	unsigned int todo_id;
+	std::cout<<"Please enter ID of the todo you want to delete: ";
+	if(!(std::cin>>todo_id)) {
+		std::cin.clear();
+		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
+	} else if(!(todo_id > 0 && todo_id <= todos.size())) {
+		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
+	} else {
+		clear_input();
+		char confirmation;
+		std::cout<<"Delete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
+		std::cin>>confirmation;
+		if(confirmation != 'Y' && confirmation != 'y') {
+			std::cout<<"Todo not deleted."<<std::endl;
+		} else {
+			todos.erase(todos.begin() + todo_id - 1);
+			std::cout<<"Todo deleted."<<std::endl;
+		}
+	}
+	clear_input();
+}
+
+int main() {
+	Todo todo1 {"create todo app"};
+	Todo todo2 {"learn C++"};
+	Todo todo3 {"get a programming job"};
+
+	std::vector<Todo> todos {todo1, todo2, todo3};
+
+	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
+
+
+	std::string const HEADING {"TODOS"};
+	unsigned const DISPLAY_WIDTH {50};
+	auto const HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
+	auto const TODO_WIDTH {DISPLAY_WIDTH-17};
+	char selection;
+
+	while(selection != 'q' && selection != 'Q') {
+		header(HEADING, HEADING_WIDTH, DISPLAY_WIDTH, &display_linebreak);
+		display_todos(todos, TODO_WIDTH);
+		display_menu(menu_items, DISPLAY_WIDTH);
+		std::cout<<"\nSelect an option from the options above: ";
+		std::cin>>selection;
+		clear_input();
+
+		switch (selection) {
+			case 'C': 
+			case 'c': {
+				create_todo(todos);
+				break;
+			}
+			case 'D': 
+			case 'd': {
+				delete_todo(todos);
+				break;
+			}
+			case 'Q':
+			case 'q': {
+				std::cout<<"Closing app.\n"<<std:: endl;
+				break;
+			}
+			default: {
+				std::cout<<"\n**Not a valid option!**\n"<<std::endl;
+			}
+		}
+	};
+
+	return 0;
+}
