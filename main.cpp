@@ -21,7 +21,7 @@ class Todo {
 		}
 };
 
-
+//Util for console UI alignment, not a feature of the app
 void ruler(unsigned int length) {
 	std::string digits {"1234567890"};
 	for(size_t i {0}; i < length; ++i)
@@ -29,6 +29,7 @@ void ruler(unsigned int length) {
 	std::cout<<std::endl;
 }
 
+//Clears the input buffer
 void clear_input() {
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
@@ -46,15 +47,18 @@ void header(unsigned int DISPLAY_WIDTH, void (*display_linebreak)(unsigned int))
 
 void display_todos(std::vector<Todo> const &todos, unsigned int DISPLAY_WIDTH) {
 	const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
-	const unsigned int TODO_ID_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
-	const unsigned int STATUS_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
-	const unsigned int TODO_WIDTH {DISPLAY_WIDTH - TODO_ID_WIDTH - STATUS_WIDTH};
+	const unsigned int TODO_ID_COLUMN_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
+	const unsigned int STATUS_COLUMN_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
+	const unsigned int TODO_COLUMN_WIDTH {DISPLAY_WIDTH - TODO_ID_COLUMN_WIDTH - STATUS_COLUMN_WIDTH};
 	const std::string strikethrough_start{"\e[9m"};
 	const std::string strikethrough_stop{"\e[29m"};
 	for(size_t i {0}; i < todos.size(); ++i) {
-		std::cout<<std::left<<std::setw(TODO_ID_WIDTH)<<i+1
-		<<(todos[i].get_status() ? strikethrough_start : "")<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<(todos[i].get_status() ? strikethrough_stop : "")
-		<<std::right<<std::setw(STATUS_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+		const auto TODO_DESCRIPTION_WIDTH {todos[i].get_todo().length()};
+
+		std::cout<<std::left<<std::setw(TODO_ID_COLUMN_WIDTH)<<i+1
+		<<(todos[i].get_status() ? strikethrough_start : "")<<std::setw(TODO_DESCRIPTION_WIDTH)<<todos[i].get_todo()<<(todos[i].get_status() ? strikethrough_stop : "")
+		<<std::setw(TODO_COLUMN_WIDTH - TODO_DESCRIPTION_WIDTH)<<""
+		<<std::right<<std::setw(STATUS_COLUMN_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
 	}
 }
 
