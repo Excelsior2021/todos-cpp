@@ -37,16 +37,25 @@ void display_linebreak(unsigned int DISPLAY_WIDTH) {
 	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
 }
 
-void header(std::string HEADING, int HEADING_WIDTH, unsigned int DISPLAY_WIDTH, void (*display_linebreak)(unsigned int)) {
+void header(unsigned int DISPLAY_WIDTH, void (*display_linebreak)(unsigned int)) {
+	const std::string HEADING {"TODOS"};
+	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
 	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
 	display_linebreak(DISPLAY_WIDTH);
 }
 
-void display_todos(std::vector<Todo> const &todos, int TODO_WIDTH) {
-	const unsigned int TODO_ID_WIDTH {4};
-	const unsigned int STATUS_WIDTH {13};
-	for(size_t i {0}; i < todos.size(); ++i)
-		std::cout<<std::left<<std::setw(TODO_ID_WIDTH)<<i+1<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<std::right<<std::setw(STATUS_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+void display_todos(std::vector<Todo> const &todos, unsigned int DISPLAY_WIDTH) {
+	const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
+	const unsigned int TODO_ID_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
+	const unsigned int STATUS_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
+	const unsigned int TODO_WIDTH {DISPLAY_WIDTH - TODO_ID_WIDTH - STATUS_WIDTH};
+	const std::string strikethrough_start{"\e[9m"};
+	const std::string strikethrough_stop{"\e[29m"};
+	for(size_t i {0}; i < todos.size(); ++i) {
+		std::cout<<std::left<<std::setw(TODO_ID_WIDTH)<<i+1
+		<<(todos[i].get_status() ? strikethrough_start : "")<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<(todos[i].get_status() ? strikethrough_stop : "")
+		<<std::right<<std::setw(STATUS_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+	}
 }
 
 void display_menu(std::vector<std::string> menu_items, int DISPLAY_WIDTH) {
@@ -95,16 +104,12 @@ int main() {
 
 	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 
-
-	const std::string HEADING {"TODOS"};
-	const unsigned DISPLAY_WIDTH {50};
-	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
-	const auto TODO_WIDTH {DISPLAY_WIDTH-17};
+	const unsigned int DISPLAY_WIDTH {50};
 	char selection;
 
 	while(selection != 'q' && selection != 'Q') {
-		header(HEADING, HEADING_WIDTH, DISPLAY_WIDTH, &display_linebreak);
-		display_todos(todos, TODO_WIDTH);
+		header(DISPLAY_WIDTH, &display_linebreak);
+		display_todos(todos, DISPLAY_WIDTH);
 		display_menu(menu_items, DISPLAY_WIDTH);
 		std::cout<<"\nSelect an option from the options above: ";
 		std::cin>>selection;
