@@ -43,8 +43,10 @@ void header(std::string HEADING, int HEADING_WIDTH, unsigned int DISPLAY_WIDTH, 
 }
 
 void display_todos(std::vector<Todo> const &todos, int TODO_WIDTH) {
+	const unsigned int TODO_ID_WIDTH {4};
+	const unsigned int STATUS_WIDTH {13};
 	for(size_t i {0}; i < todos.size(); ++i)
-		std::cout<<std::left<<std::setw(4)<<i+1<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<std::right<<std::setw(13)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+		std::cout<<std::left<<std::setw(TODO_ID_WIDTH)<<i+1<<std::setw(TODO_WIDTH)<<todos[i].get_todo()<<std::right<<std::setw(STATUS_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
 }
 
 void display_menu(std::vector<std::string> menu_items, int DISPLAY_WIDTH) {
@@ -94,10 +96,10 @@ int main() {
 	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 
 
-	std::string const HEADING {"TODOS"};
-	unsigned const DISPLAY_WIDTH {50};
-	auto const HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
-	auto const TODO_WIDTH {DISPLAY_WIDTH-17};
+	const std::string HEADING {"TODOS"};
+	const unsigned DISPLAY_WIDTH {50};
+	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
+	const auto TODO_WIDTH {DISPLAY_WIDTH-17};
 	char selection;
 
 	while(selection != 'q' && selection != 'Q') {
