@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <limits>
 
@@ -10,7 +11,7 @@ class Todo {
 
 	public:
 		Todo(std::string description): description {description} {}
-		std::string get_todo() const {
+		std::string get_description() const {
 			return description;
 		};
 		bool get_status() const {
@@ -18,6 +19,7 @@ class Todo {
 		}
 		void change_status() {
 			completed = !completed;
+			std::cout<<completed;
 		}
 };
 
@@ -38,32 +40,31 @@ void display_linebreak(unsigned int DISPLAY_WIDTH) {
 	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
 }
 
-void header(unsigned int DISPLAY_WIDTH, void (*display_linebreak)(unsigned int)) {
-	const std::string HEADING {"TODOS"};
+void header(const std::string HEADING, unsigned int DISPLAY_WIDTH) {
 	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
 	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
 	display_linebreak(DISPLAY_WIDTH);
 }
 
-void display_todos(std::vector<Todo> const &todos, unsigned int DISPLAY_WIDTH) {
-	const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
-	const unsigned int TODO_ID_COLUMN_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
-	const unsigned int STATUS_COLUMN_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
-	const unsigned int TODO_COLUMN_WIDTH {DISPLAY_WIDTH - TODO_ID_COLUMN_WIDTH - STATUS_COLUMN_WIDTH};
-	const std::string strikethrough_start{"\e[9m"};
-	const std::string strikethrough_stop{"\e[29m"};
-	for(size_t i {0}; i < todos.size(); ++i) {
-		const auto TODO_DESCRIPTION_WIDTH {todos[i].get_todo().length()};
+void display_todo(const Todo todo, size_t id, const unsigned int TODO_ID_COLUMN_WIDTH, 
+	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+	const auto TODO_DESCRIPTION_WIDTH {todo.get_description().length()};
+	std::cout<<std::left<<std::setw(TODO_ID_COLUMN_WIDTH)<<id
+	<<(todo.get_status() ? strikethrough_start : "")<<std::setw(TODO_DESCRIPTION_WIDTH)<<todo.get_description()<<(todo.get_status() ? strikethrough_stop : "")
+	<<std::setw(TODO_COLUMN_WIDTH - TODO_DESCRIPTION_WIDTH)<<""
+	<<std::right<<std::setw(STATUS_COLUMN_WIDTH)<<(todo.get_status() ? "complete" : "incomplete")<<std::endl;
+}
 
-		std::cout<<std::left<<std::setw(TODO_ID_COLUMN_WIDTH)<<i+1
-		<<(todos[i].get_status() ? strikethrough_start : "")<<std::setw(TODO_DESCRIPTION_WIDTH)<<todos[i].get_todo()<<(todos[i].get_status() ? strikethrough_stop : "")
-		<<std::setw(TODO_COLUMN_WIDTH - TODO_DESCRIPTION_WIDTH)<<""
-		<<std::right<<std::setw(STATUS_COLUMN_WIDTH)<<(todos[i].get_status() ? "complete" : "incomplete")<<std::endl;
+void display_todos(std::vector<Todo> const &todos, const unsigned int TODO_ID_COLUMN_WIDTH, 
+	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+	for(size_t i {0}; i < todos.size(); ++i) {
+		size_t id = i + 1;
+		display_todo(todos[i], id, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
 	}
 }
 
-void display_menu(std::vector<std::string> menu_items, int DISPLAY_WIDTH) {
-	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
+void display_menu(std::vector<std::string> menu_items, unsigned int DISPLAY_WIDTH) {
+	display_linebreak(DISPLAY_WIDTH);
 	for(auto item:menu_items)
 		std::cout<<item<<std::endl;
 }
@@ -72,8 +73,51 @@ void create_todo(std::vector<Todo> &todos) {
 	std::string description;
 	std::cout<<"Enter the todo: ";
 	std::getline(std::cin, description);
+	std::cout<<"\nNew todo added.\n"<<std::endl;
 	Todo todo {description};
 	todos.push_back(todo);
+}
+
+void update_todo(std::vector<Todo> &todos, unsigned int DISPLAY_WIDTH, const unsigned int TODO_ID_COLUMN_WIDTH, 
+	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+	unsigned int todo_id;
+	std::cout<<"Please enter ID of the todo you want to update: ";
+	if(!(std::cin>>todo_id)) {
+		std::cin.clear();
+		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
+	} else if(!(todo_id > 0 && todo_id <= todos.size())) {
+		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
+	} else {
+		char selection;
+		while(selection != 'Q' && selection != 'q') {
+			clear_input();
+			Todo* selected_todo = &todos[todo_id - 1];
+			std::vector<std::string> menu_items {"C - change description", (*selected_todo).get_status() ? "X - incomplete" : "X - Complete", "Q - return to main menu"};
+			std::cout<<'\n';
+			header("UPDATE TODO", DISPLAY_WIDTH);
+			display_todo((*selected_todo), todo_id, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
+			display_menu(menu_items, DISPLAY_WIDTH);
+			std::cout<<"\nSelect an option from the options above: ";
+			std::cin>>selection;
+
+			switch (selection) {
+				case 'X':
+				case 'x': {
+					(*selected_todo).change_status();
+					break;
+				}
+				case 'Q':
+				case 'q': {
+					return; //return to main menu
+					break;
+				}
+				default: {
+					std::cout<<"\nUpdate Todo: **Not a valid option!**\n"<<std::endl;
+					break;
+				}
+			}
+		};
+	}
 }
 
 void delete_todo(std::vector<Todo> &todos) {
@@ -100,6 +144,16 @@ void delete_todo(std::vector<Todo> &todos) {
 }
 
 int main() {
+	//Program constants
+	const unsigned int DISPLAY_WIDTH {50};
+	const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
+	const unsigned int TODO_ID_COLUMN_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
+	const unsigned int STATUS_COLUMN_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
+	const unsigned int TODO_COLUMN_WIDTH {DISPLAY_WIDTH - TODO_ID_COLUMN_WIDTH - STATUS_COLUMN_WIDTH};
+	const std::string strikethrough_start{"\e[9m"};
+	const std::string strikethrough_stop{"\e[29m"};
+
+	//Sample todos
 	Todo todo1 {"create todo app"};
 	Todo todo2 {"learn C++"};
 	Todo todo3 {"get a programming job"};
@@ -108,21 +162,26 @@ int main() {
 
 	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 
-	const unsigned int DISPLAY_WIDTH {50};
 	char selection;
 
 	while(selection != 'q' && selection != 'Q') {
-		header(DISPLAY_WIDTH, &display_linebreak);
-		display_todos(todos, DISPLAY_WIDTH);
+		header("TODOS", DISPLAY_WIDTH);
+		display_todos(todos, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
 		display_menu(menu_items, DISPLAY_WIDTH);
 		std::cout<<"\nSelect an option from the options above: ";
 		std::cin>>selection;
+		std::cout<<std::endl;
 		clear_input();
 
 		switch (selection) {
 			case 'C': 
 			case 'c': {
 				create_todo(todos);
+				break;
+			}
+			case 'U': 
+			case 'u': {
+				update_todo(todos, DISPLAY_WIDTH, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
 				break;
 			}
 			case 'D': 
@@ -136,7 +195,7 @@ int main() {
 				break;
 			}
 			default: {
-				std::cout<<"\n**Not a valid option!**\n"<<std::endl;
+				std::cout<<"\nMenu: **Not a valid option!**\n"<<std::endl;
 			}
 		}
 	};
