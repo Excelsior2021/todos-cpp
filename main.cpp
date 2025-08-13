@@ -26,6 +26,9 @@ class Todo {
 		bool get_status() const {
 			return completed;
 		}
+		void change_description(std::string new_description) {
+			description = new_description;
+		}
 		void change_status() {
 			completed = !completed;
 		}
@@ -85,19 +88,34 @@ void create_todo(std::vector<Todo> &todos) {
 }
 
 void update_todo(std::vector<Todo> &todos) {
-	unsigned int todo_id;
-	std::cout<<"Please enter ID of the todo you want to update: ";
-	if(!(std::cin>>todo_id)) {
-		std::cin.clear();
-		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
-	} else if(!(todo_id > 0 && todo_id <= todos.size())) {
-		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
-	} else {
-		char selection;
-		while(selection != 'Q' && selection != 'q') {
+	std::string user_input;
+	bool quit {false};
+	char selection;		
+	size_t todo_id;
+	
+	std::cout<<"Please enter the ID of the todo you want to update or enter q to quit: ";
+	std::getline(std::cin, user_input);
+
+	if(user_input == "q" || user_input == "Q") 
+		return;
+
+	while(user_input != "q" && user_input != "Q") {
+		std::istringstream iss(user_input);
+		iss>>todo_id;
+
+		if(!iss>>todo_id) {
+			std::cin.clear();
+			clear_input();
+			std::cout<<"\nPlease enter a valid ID or enter q to quit: ";
+			std::getline(std::cin, user_input);
+		} else if(!(todo_id > 0 && todo_id <= todos.size())) {
+			std::cout<<"\nNo todo with that ID exists!";
+			std::cout<<"\n\nPlease enter a valid ID or enter q to quit: ";
+			std::getline(std::cin, user_input);
+		} else {
 			clear_input();
 			Todo* selected_todo = &todos[todo_id - 1];
-			std::vector<std::string> menu_items {"C - change description", (*selected_todo).get_status() ? "X - incomplete" : "X - Complete", "Q - return to main menu"};
+			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - Complete", "Q - return to main menu"};
 			std::cout<<'\n';
 			header("UPDATE TODO");
 			display_todo((*selected_todo), todo_id);
@@ -106,9 +124,18 @@ void update_todo(std::vector<Todo> &todos) {
 			std::cin>>selection;
 
 			switch (selection) {
+				case 'C':
+				case 'c': {
+					std::string new_description;
+					clear_input();
+					std::cout<<"Please enter the new description: ";
+					std::getline(std::cin, new_description);
+					selected_todo->change_description(new_description);
+					break;
+				}
 				case 'X':
 				case 'x': {
-					(*selected_todo).change_status();
+					selected_todo->change_status();
 					break;
 				}
 				case 'Q':
@@ -117,13 +144,14 @@ void update_todo(std::vector<Todo> &todos) {
 					break;
 				}
 				default: {
-					std::cout<<"\nUpdate Todo: **Not a valid option!**\n"<<std::endl;
+					std::cout<<"\nUpdate Todo: **Not a valid option!**"<<std::endl;
 					break;
 				}
 			}
 		};
 	}
 }
+
 
 void delete_todo(std::vector<Todo> &todos) {
 	unsigned int todo_id;
@@ -134,8 +162,8 @@ void delete_todo(std::vector<Todo> &todos) {
 	} else if(!(todo_id > 0 && todo_id <= todos.size())) {
 		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
 	} else {
-		clear_input();
 		char confirmation;
+		clear_input();
 		std::cout<<"Delete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
 		std::cin>>confirmation;
 		if(confirmation != 'Y' && confirmation != 'y') {
@@ -160,13 +188,13 @@ int main() {
 
 	char selection;
 
-	while(selection != 'q' && selection != 'Q') {
+	while(selection != 'Q' && selection != 'q') {
 		header("TODOS");
 		display_todos(todos);
 		display_menu(menu_items);
 		std::cout<<"\nSelect an option from the options above: ";
 		std::cin>>selection;
-		std::cout<<std::endl;
+		std::cout<<'\n';
 		clear_input();
 
 		switch (selection) {
