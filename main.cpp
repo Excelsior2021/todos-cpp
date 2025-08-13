@@ -5,6 +5,15 @@
 #include <vector>
 #include <limits>
 
+//Program constants
+const unsigned int DISPLAY_WIDTH {50};
+const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
+const unsigned int TODO_ID_COLUMN_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
+const unsigned int STATUS_COLUMN_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
+const unsigned int TODO_COLUMN_WIDTH {DISPLAY_WIDTH - TODO_ID_COLUMN_WIDTH - STATUS_COLUMN_WIDTH};
+const std::string strikethrough_start{"\e[9m"};
+const std::string strikethrough_stop{"\e[29m"};
+
 class Todo {
 	std::string description;
 	bool completed {false};
@@ -19,7 +28,6 @@ class Todo {
 		}
 		void change_status() {
 			completed = !completed;
-			std::cout<<completed;
 		}
 };
 
@@ -36,18 +44,17 @@ void clear_input() {
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void display_linebreak(unsigned int DISPLAY_WIDTH) {
+void display_linebreak() {
 	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
 }
 
-void header(const std::string HEADING, unsigned int DISPLAY_WIDTH) {
+void header(const std::string HEADING) {
 	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
 	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
-	display_linebreak(DISPLAY_WIDTH);
+	display_linebreak();
 }
 
-void display_todo(const Todo todo, size_t id, const unsigned int TODO_ID_COLUMN_WIDTH, 
-	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+void display_todo(const Todo todo, size_t id) {
 	const auto TODO_DESCRIPTION_WIDTH {todo.get_description().length()};
 	std::cout<<std::left<<std::setw(TODO_ID_COLUMN_WIDTH)<<id
 	<<(todo.get_status() ? strikethrough_start : "")<<std::setw(TODO_DESCRIPTION_WIDTH)<<todo.get_description()<<(todo.get_status() ? strikethrough_stop : "")
@@ -55,16 +62,15 @@ void display_todo(const Todo todo, size_t id, const unsigned int TODO_ID_COLUMN_
 	<<std::right<<std::setw(STATUS_COLUMN_WIDTH)<<(todo.get_status() ? "complete" : "incomplete")<<std::endl;
 }
 
-void display_todos(std::vector<Todo> const &todos, const unsigned int TODO_ID_COLUMN_WIDTH, 
-	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+void display_todos(std::vector<Todo> const &todos) {
 	for(size_t i {0}; i < todos.size(); ++i) {
 		size_t id = i + 1;
-		display_todo(todos[i], id, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
+		display_todo(todos[i], id);
 	}
 }
 
-void display_menu(std::vector<std::string> menu_items, unsigned int DISPLAY_WIDTH) {
-	display_linebreak(DISPLAY_WIDTH);
+void display_menu(std::vector<std::string> menu_items) {
+	display_linebreak();
 	for(auto item:menu_items)
 		std::cout<<item<<std::endl;
 }
@@ -78,8 +84,7 @@ void create_todo(std::vector<Todo> &todos) {
 	todos.push_back(todo);
 }
 
-void update_todo(std::vector<Todo> &todos, unsigned int DISPLAY_WIDTH, const unsigned int TODO_ID_COLUMN_WIDTH, 
-	const unsigned int TODO_COLUMN_WIDTH, const unsigned int STATUS_COLUMN_WIDTH, const std::string strikethrough_start, const std::string strikethrough_stop) {
+void update_todo(std::vector<Todo> &todos) {
 	unsigned int todo_id;
 	std::cout<<"Please enter ID of the todo you want to update: ";
 	if(!(std::cin>>todo_id)) {
@@ -94,9 +99,9 @@ void update_todo(std::vector<Todo> &todos, unsigned int DISPLAY_WIDTH, const uns
 			Todo* selected_todo = &todos[todo_id - 1];
 			std::vector<std::string> menu_items {"C - change description", (*selected_todo).get_status() ? "X - incomplete" : "X - Complete", "Q - return to main menu"};
 			std::cout<<'\n';
-			header("UPDATE TODO", DISPLAY_WIDTH);
-			display_todo((*selected_todo), todo_id, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
-			display_menu(menu_items, DISPLAY_WIDTH);
+			header("UPDATE TODO");
+			display_todo((*selected_todo), todo_id);
+			display_menu(menu_items);
 			std::cout<<"\nSelect an option from the options above: ";
 			std::cin>>selection;
 
@@ -144,15 +149,6 @@ void delete_todo(std::vector<Todo> &todos) {
 }
 
 int main() {
-	//Program constants
-	const unsigned int DISPLAY_WIDTH {50};
-	const unsigned int COLUMN_BUFFER {3}; //For separation between Todo table columns
-	const unsigned int TODO_ID_COLUMN_WIDTH {3 + COLUMN_BUFFER}; //3 because assumming max todo id will be 3 digits e.g. 999
-	const unsigned int STATUS_COLUMN_WIDTH {10 + COLUMN_BUFFER}; //10 because 'incomplete' is 10 chars long. 'complete' has 8 chars
-	const unsigned int TODO_COLUMN_WIDTH {DISPLAY_WIDTH - TODO_ID_COLUMN_WIDTH - STATUS_COLUMN_WIDTH};
-	const std::string strikethrough_start{"\e[9m"};
-	const std::string strikethrough_stop{"\e[29m"};
-
 	//Sample todos
 	Todo todo1 {"create todo app"};
 	Todo todo2 {"learn C++"};
@@ -165,9 +161,9 @@ int main() {
 	char selection;
 
 	while(selection != 'q' && selection != 'Q') {
-		header("TODOS", DISPLAY_WIDTH);
-		display_todos(todos, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
-		display_menu(menu_items, DISPLAY_WIDTH);
+		header("TODOS");
+		display_todos(todos);
+		display_menu(menu_items);
 		std::cout<<"\nSelect an option from the options above: ";
 		std::cin>>selection;
 		std::cout<<std::endl;
@@ -181,7 +177,7 @@ int main() {
 			}
 			case 'U': 
 			case 'u': {
-				update_todo(todos, DISPLAY_WIDTH, TODO_ID_COLUMN_WIDTH, TODO_COLUMN_WIDTH, STATUS_COLUMN_WIDTH, strikethrough_start, strikethrough_stop);
+				update_todo(todos);
 				break;
 			}
 			case 'D': 
