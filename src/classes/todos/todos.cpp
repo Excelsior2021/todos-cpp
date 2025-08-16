@@ -3,8 +3,27 @@
 #include <iostream>
 #include <sstream>
 
-std::vector<Todo> *Todos::get_todos() {
-	return &todos;
+bool Todos::load(std::string file_name) {
+	file.open(file_name);
+
+	if(!file)
+		return false;
+
+	while(!file.eof()) {
+		std::string description;
+		bool completed;
+
+		std::getline(file, description, ',');
+		file>>completed;
+		file.ignore(); //ignore newline character
+
+		Todo todo {description, completed};
+		todos.push_back(todo);
+	}
+
+	file.close();
+
+	return true;
 }
 
 void Todos::display() {
