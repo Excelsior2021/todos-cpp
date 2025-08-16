@@ -4,7 +4,7 @@
 #include <sstream>
 
 bool Todos::load() {
-	file.open(file_name);
+	file.open(filename);
 
 	if(!file)
 		return false;
@@ -38,7 +38,7 @@ bool Todos::create() {
 	std::cout<<"Enter the todo: ";
 	std::getline(std::cin, description);
 
-	file.open(file_name, std::ofstream::app);
+	file.open(filename, std::ofstream::app);
 
 	if(!file)
 		return false;
@@ -117,7 +117,7 @@ void Todos::update() {
 	std::cout<<"\nReturning to main menu..."<<std::endl;
 }
 
-void Todos::del() {
+bool Todos::del() {
 	size_t todo_id;
 	std::cout<<"Please enter ID of the todo you want to delete: ";
 	if(!(std::cin>>todo_id)) {
@@ -133,9 +133,48 @@ void Todos::del() {
 		if(confirmation != 'Y' && confirmation != 'y') {
 			std::cout<<"\nTodo not deleted."<<std::endl;
 		} else {
+			file.open(filename, std::ifstream::in);
+			std::ofstream temp_file;
+			temp_file.open("temp.txt");
+
+			if(!file || !temp_file)
+				return false;
+
+			size_t i {1};
+			std::string line;
+
+			//if todo is last line in file
+			if(todo_id == todos.size()) {
+				for(size_t i {1}; i < todos.size(); ++i) {
+					std::getline(file, line);
+					if(i == todos.size() -1)
+						temp_file<<line;
+					else
+						temp_file<<line<<'\n';
+				}
+			}
+			//else if todo is not last line in file
+			else {
+				while(std::getline(file, line)) {
+				if(todo_id != i && i == todos.size())
+					temp_file<<line;
+				else if(todo_id != i)
+					temp_file<<line<<'\n';
+				++i;
+				}
+			}
+
+			file.close();
+			temp_file.close();
+
+			std::remove(filename.c_str());
+			std::rename("temp.txt", filename.c_str());
+
 			todos.erase(todos.begin() + todo_id - 1);
 			std::cout<<"\nTodo deleted."<<std::endl;
 		}
 	}
 	clear_input();
+	
+	return true;
 }
