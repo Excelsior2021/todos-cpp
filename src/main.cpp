@@ -4,18 +4,36 @@
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <fstream>
 
 #include "utils/utils.h"
 #include "classes/todo/todo.h"
 #include "classes/todos/todos.h"
 
 int main() {
-	//Sample todos
-	Todo todo1 {"create todo app"};
-	Todo todo2 {"learn C++"};
-	Todo todo3 {"get a programming job"};
+	std::ifstream todos_file;
 
-	Todos todos {std::vector<Todo> {todo1, todo2, todo3}};
+	todos_file.open("./data/todos.txt");
+
+	if(!todos_file) {
+		std::cerr<<"Cannot load file."<<std::endl;
+		std::cout<<"\nClosing app."<<std::endl;
+		return 1;
+	}
+
+	Todos todos;
+
+	while(!todos_file.eof()) {
+		std::string description;
+		bool completed;
+
+		std::getline(todos_file, description, ',');
+		todos_file>>completed;
+		todos_file.ignore(); //ignore newline character
+
+		Todo todo {description, completed};
+		todos.get_todos()->push_back(todo);
+	}
 
 	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <sstream>
 
+std::vector<Todo> *Todos::get_todos() {
+	return &todos;
+}
 
 void Todos::display() {
 	for(size_t i {0}; i < todos.size(); ++i) {
@@ -42,7 +45,7 @@ void Todos::update_todo() {
 		} else {
 			char selection;		
 			Todo* selected_todo = &todos[todo_id - 1];
-			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - Complete", "Q - return to main menu"};
+			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", "Q - return to main menu"};
 			std::cout<<'\n';
 			header("UPDATE TODO");
 			selected_todo->display(todo_id);

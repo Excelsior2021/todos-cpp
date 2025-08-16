@@ -1,0 +1,3 @@
+create todo app,1
+learn C++,0
+get a programming job,1

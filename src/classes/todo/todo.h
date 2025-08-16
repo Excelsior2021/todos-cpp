@@ -7,10 +7,11 @@
 
 class Todo {
 	std::string description;
-	bool completed {false};
+	bool completed;
 
 	public:
-		Todo(std::string description): description {description} {}
+		Todo(std::string description, bool completed = false): 
+			description {description}, completed{completed} {}
 		std::string get_description() const {
 			return description;
 		};
