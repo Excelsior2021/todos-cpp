@@ -10,9 +10,9 @@
 #include "classes/todos/todos.h"
 
 int main(int argc, char* argv[]) {
-	Todos todos;
+	Todos todos {argv[1]};
 
-	if(!todos.load(argv[1])) {
+	if(!todos.load()) {
 		std::cerr<<"Cannot load file."<<std::endl;
 		std::cout<<"\nClosing app."<<std::endl;
 		return 1;
@@ -35,17 +35,17 @@ int main(int argc, char* argv[]) {
 		switch (selection) {
 			case 'C': 
 			case 'c': {
-				todos.create_todo();
+				todos.create();
 				break;
 			}
 			case 'U': 
 			case 'u': {
-				todos.update_todo();
+				todos.update();
 				break;
 			}
 			case 'D': 
 			case 'd': {
-				todos.delete_todo();
+				todos.del();
 				break;
 			}
 			case 'Q':

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-bool Todos::load(std::string file_name) {
+bool Todos::load() {
 	file.open(file_name);
 
 	if(!file)
@@ -33,16 +33,27 @@ void Todos::display() {
 	}
 }
 
-void Todos::create_todo() {
+bool Todos::create() {
 	std::string description;
 	std::cout<<"Enter the todo: ";
 	std::getline(std::cin, description);
+
+	file.open(file_name, std::ofstream::app);
+
+	if(!file)
+		return false;
+
+	file<<'\n'<<description<<','<<0;
+	file.close();
+
 	std::cout<<"\nNew todo added."<<std::endl;
 	Todo todo {description};
 	todos.push_back(todo);
+
+	return true;
 }
 
-void Todos::update_todo() {
+void Todos::update() {
 	std::string user_input;
 	size_t todo_id;
 	
@@ -106,7 +117,7 @@ void Todos::update_todo() {
 	std::cout<<"\nReturning to main menu..."<<std::endl;
 }
 
-void Todos::delete_todo() {
+void Todos::del() {
 	size_t todo_id;
 	std::cout<<"Please enter ID of the todo you want to delete: ";
 	if(!(std::cin>>todo_id)) {

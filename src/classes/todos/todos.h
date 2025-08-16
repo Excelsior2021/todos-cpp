@@ -9,15 +9,15 @@
 class Todos {
 	std::vector<Todo> todos;
 	std::fstream file;
+	std::string file_name;
 
 	public:
-		Todos() {};
-		Todos(std::vector<Todo> &&todos): todos{todos} {};
-		bool load(std::string file_name);
+		Todos(std::string file_name): file_name{file_name} {};
+		bool load();
 		void display();
-		void create_todo();
-		void update_todo();
-		void delete_todo();
+		bool create();
+		void update();
+		void del();
 };
 
 #endif
