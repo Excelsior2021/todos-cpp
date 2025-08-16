@@ -19,7 +19,7 @@ int main() {
 
 	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 
-	char selection;
+	char selection {};
 
 	while(selection != 'Q' && selection != 'q') {
 		std::cout<<'\n';
