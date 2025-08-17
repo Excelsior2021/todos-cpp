@@ -6,16 +6,17 @@
 #include "../../utils/utils.h"
 
 class Todo {
+	size_t id;
 	std::string description;
 	bool completed;
 
 	public:
-		Todo(std::string description, bool completed = false): 
-			description {description}, completed{completed} {}
+		Todo(size_t id, std::string description, bool completed = false): 
+			id {id}, description {description}, completed{completed} {}
 		std::string get_description() const {
 			return description;
 		};
-		void display(size_t id);
+		void display() const;
 		bool get_status() const {
 			return completed;
 		}

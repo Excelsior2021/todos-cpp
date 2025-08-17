@@ -10,7 +10,7 @@
 #include "classes/todos/todos.h"
 
 int main(int argc, char* argv[]) {
-	Todos todos {argv[1]};
+	Todos todos {argv[1] ? argv[1]  : "./data/todos.txt"};
 
 	if(!todos.load()) {
 		std::cerr<<"Cannot load file."<<std::endl;

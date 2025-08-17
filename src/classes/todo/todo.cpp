@@ -1,6 +1,6 @@
 #include "todo.h"
 
-void Todo::display(size_t id) {
+void Todo::display() const {
 	const auto TODO_DESCRIPTION_WIDTH {description.length()};
 	std::cout<<std::left<<std::setw(TODO_ID_COLUMN_WIDTH)<<id
 	<<(completed ? strikethrough_start : "")<<std::setw(TODO_DESCRIPTION_WIDTH)<<description<<(completed ? strikethrough_stop : "")

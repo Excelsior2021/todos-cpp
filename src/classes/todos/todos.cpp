@@ -2,35 +2,52 @@
 
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 bool Todos::load() {
-	file.open(filename);
+	namespace fs = std::filesystem;
 
-	if(!file)
-		return false;
+	if(fs::exists(filename)) {
+		file.open(filename);
 
-	while(!file.eof()) {
-		std::string description;
-		bool completed;
+		if(!file)
+			return false;
 
-		std::getline(file, description, ',');
-		file>>completed;
-		file.ignore(); //ignore newline character
+		size_t id;
+		
+		while(file>>id) {
+			std::string description;
+			bool completed;
 
-		Todo todo {description, completed};
-		todos.push_back(todo);
+			std::getline(file, description, ',');
+			file>>completed;
+			file.ignore(); //ignore newline character
+
+			Todo todo {id, description, completed};
+			todos.push_back(todo);
+		}
+
+		file.close();
+	} else {
+		fs::create_directory("./data");
+
+		file.open(filename, std::ios::out);
+
+		if(!file)
+			return false;
+
+		file.close();
 	}
-
-	file.close();
 
 	return true;
 }
 
 void Todos::display() {
-	for(size_t i {0}; i < todos.size(); ++i) {
-		size_t id = i + 1;
-		todos[i].display(id);
-	}
+	if(todos.size() == 0) 
+		std::cout<<"No Todos\n";
+	else
+		for(auto &todo:todos)
+			todo.display();
 }
 
 bool Todos::create() {
@@ -43,11 +60,14 @@ bool Todos::create() {
 	if(!file)
 		return false;
 
-	file<<'\n'<<description<<','<<0;
+	size_t id = todos.size() + 1;
+
+	file<<(id == 1 ? "" : "\n")<<id<<' '<<description<<','<<0;
+
 	file.close();
 
 	std::cout<<"\nNew todo added."<<std::endl;
-	Todo todo {description};
+	Todo todo {id, description};
 	todos.push_back(todo);
 
 	return true;
@@ -78,7 +98,7 @@ void Todos::update() {
 			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", "Q - return to main menu"};
 			std::cout<<'\n';
 			header("UPDATE TODO");
-			selected_todo->display(todo_id);
+			selected_todo->display();
 			display_menu(menu_items);
 			std::cout<<"\nSelect an option from the options above: ";
 			std::cin>>selection;
@@ -140,7 +160,6 @@ bool Todos::del() {
 			if(!file || !temp_file)
 				return false;
 
-			size_t i {1};
 			std::string line;
 
 			//if todo is last line in file
@@ -155,11 +174,13 @@ bool Todos::del() {
 			}
 			//else if todo is not last line in file
 			else {
+				size_t i {1};
 				while(std::getline(file, line)) {
 				if(todo_id != i && i == todos.size())
 					temp_file<<line;
 				else if(todo_id != i)
 					temp_file<<line<<'\n';
+
 				++i;
 				}
 			}
