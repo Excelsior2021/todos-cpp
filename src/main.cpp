@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 		std::cout<<'\n';
 		clear_input();
 
+		//handle methods returning false!!!!!!!!!!
 		switch (selection) {
 			case 'C': 
 			case 'c': {

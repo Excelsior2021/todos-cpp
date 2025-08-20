@@ -1,13 +1,11 @@
 #include "./todos.h"
 
-#include <iostream>
-#include <sstream>
-#include <filesystem>
-
-bool Todos::load() {
+bool Todos::load()
+{
 	namespace fs = std::filesystem;
 
-	if(fs::exists(filename)) {
+	if(fs::exists(filename)) 
+	{
 		file.open(filename);
 
 		if(!file)
@@ -15,11 +13,12 @@ bool Todos::load() {
 
 		size_t id;
 		
-		while(file>>id) {
+		while(file>>id) 
+		{
 			std::string description;
 			bool completed;
 
-			std::getline(file, description, ',');
+			std::getline(file>>std::ws, description, ',');
 			file>>completed;
 			file.ignore(); //ignore newline character
 
@@ -42,7 +41,8 @@ bool Todos::load() {
 	return true;
 }
 
-void Todos::display() {
+void Todos::display()
+{
 	if(todos.size() == 0) 
 		std::cout<<"No Todos\n";
 	else
@@ -50,7 +50,8 @@ void Todos::display() {
 			todo.display();
 }
 
-bool Todos::create() {
+bool Todos::create() 
+{
 	std::string description;
 	std::cout<<"Enter the todo: ";
 	std::getline(std::cin, description);
@@ -62,7 +63,7 @@ bool Todos::create() {
 
 	size_t id = todos.size() + 1;
 
-	file<<(id == 1 ? "" : "\n")<<id<<' '<<description<<','<<0;
+	file<<id<<' '<<description<<','<<0<<'\n';
 
 	file.close();
 
@@ -73,29 +74,53 @@ bool Todos::create() {
 	return true;
 }
 
-void Todos::update() {
+bool Todos::update() 
+{
 	std::string user_input;
 	size_t todo_id;
+	bool todo_original_status;
+	std::string todo_original_description;
+	bool initial = true;
+	bool todo_picked = false;
 	
 	std::cout<<"Please enter the ID of the todo you want to update or enter q to quit: ";
 	std::getline(std::cin, user_input);
+	std::istringstream iss(user_input);
+	iss>>todo_id;
 
-	while(user_input != "q" && user_input != "Q") {
-		std::istringstream iss(user_input);
-		iss>>todo_id;
+	Todo* selected_todo;
 
-		if(!iss>>todo_id) {
+	while(user_input != "q" && user_input != "Q") 
+	{
+		if(!iss>>todo_id)
+		{
 			std::cin.clear();
 			std::cout<<"\nPlease enter a valid ID or enter q to quit: ";
 			std::getline(std::cin, user_input);
-		} else if(!(todo_id > 0 && todo_id <= todos.size())) {
+		} 
+		else if(!(todo_id > 0 && todo_id <= todos.size()))
+		{
 			std::cout<<"\nNo todo with that ID exists!";
 			std::cout<<"\n\nPlease enter a valid ID or enter q to quit: ";
 			std::getline(std::cin, user_input);
-		} else {
+		} 
+		else 
+		{
 			char selection;		
-			Todo* selected_todo = &todos[todo_id - 1];
-			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", "Q - return to main menu"};
+			selected_todo = &todos[todo_id - 1];
+
+			if(initial) 
+			{
+				todo_original_status = selected_todo->get_status();
+				todo_original_description = selected_todo->get_description();
+				initial = false;
+				todo_picked = true;
+			}
+
+			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", 
+				(selected_todo->get_description() != todo_original_description 
+					|| selected_todo->get_status() != todo_original_status) ? "Q - Save changes and return to main menu" : "Q - return to main menu"};
+
 			std::cout<<'\n';
 			header("UPDATE TODO");
 			selected_todo->display();
@@ -103,9 +128,11 @@ void Todos::update() {
 			std::cout<<"\nSelect an option from the options above: ";
 			std::cin>>selection;
 
-			switch (selection) {
+			switch (selection) 
+			{
 				case 'C':
-				case 'c': {
+				case 'c': 
+				{
 					std::string new_description;
 					clear_input();
 					std::cout<<"\nPlease enter the new description: ";
@@ -115,17 +142,20 @@ void Todos::update() {
 					break;
 				}
 				case 'X':
-				case 'x': {
+				case 'x':
+				{
 					selected_todo->change_status();
 					std::cout<<"\nTodo status changed."<<std::endl;
 					break;
 				}
 				case 'Q':
-				case 'q': {
+				case 'q': 
+				{
 					user_input = selection; //to exit loop
 					break;
 				}
-				default: {
+				default: 
+				{
 					clear_input();
 					std::cout<<"\nUpdate Todo: **Not a valid option!**"<<std::endl;
 					break;
@@ -133,55 +163,32 @@ void Todos::update() {
 			}
 		};
 	}
-
-	std::cout<<"\nReturning to main menu..."<<std::endl;
-}
-
-bool Todos::del() {
-	size_t todo_id;
-	std::cout<<"Please enter ID of the todo you want to delete: ";
-	if(!(std::cin>>todo_id)) {
-		std::cin.clear();
-		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
-	} else if(!(todo_id > 0 && todo_id <= todos.size())) {
-		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
-	} else {
-		char confirmation;
-		clear_input();
-		std::cout<<"\nDelete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
-		std::cin>>confirmation;
-		if(confirmation != 'Y' && confirmation != 'y') {
-			std::cout<<"\nTodo not deleted."<<std::endl;
-		} else {
+	
+	if(todo_picked) {
+		if(selected_todo->get_status() != todo_original_status 
+			|| selected_todo->get_description() != todo_original_description) 
+		{
 			file.open(filename, std::ifstream::in);
+
 			std::ofstream temp_file;
-			temp_file.open("temp.txt");
+			temp_file.open(tempfile_path);
 
 			if(!file || !temp_file)
 				return false;
 
 			std::string line;
+			size_t file_todo_id;
 
-			//if todo is last line in file
-			if(todo_id == todos.size()) {
-				for(size_t i {1}; i < todos.size(); ++i) {
+			while(file>>file_todo_id)
+			{
+				if(file_todo_id != todo_id)
+				{
 					std::getline(file, line);
-					if(i == todos.size() -1)
-						temp_file<<line;
-					else
-						temp_file<<line<<'\n';
+					temp_file<<file_todo_id<<line<<'\n';
 				}
-			}
-			//else if todo is not last line in file
-			else {
-				size_t i {1};
-				while(std::getline(file, line)) {
-				if(todo_id != i && i == todos.size())
-					temp_file<<line;
-				else if(todo_id != i)
-					temp_file<<line<<'\n';
-
-				++i;
+				else
+				{
+					temp_file<<file_todo_id<<' '<<selected_todo->get_description()<<','<<selected_todo->get_status()<<'\n';
 				}
 			}
 
@@ -189,9 +196,72 @@ bool Todos::del() {
 			temp_file.close();
 
 			std::remove(filename.c_str());
-			std::rename("temp.txt", filename.c_str());
+			std::rename(tempfile_path.c_str(), filename.c_str());
+		}
+	}
+	std::cout<<"\nReturning to main menu..."<<std::endl;
+	return true;
+}
+
+bool Todos::del() {
+	size_t todo_id;
+	std::cout<<"Please enter ID of the todo you want to delete: ";
+
+	if(!(std::cin>>todo_id)) 
+	{
+		std::cin.clear();
+		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
+	} 
+	else if(!(todo_id > 0 && todo_id <= todos.size())) 
+	{
+		std::cout<<"\nNo todo with that ID exists!\n"<<std::endl;
+	} 
+	else 
+	{
+		char confirmation;
+		clear_input();
+		std::cout<<"\nDelete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
+		std::cin>>confirmation;
+		if(confirmation != 'Y' && confirmation != 'y') 
+		{
+			std::cout<<"\nTodo not deleted."<<std::endl;
+		} 
+		else 
+		{
+			file.open(filename, std::ifstream::in);
+			std::ofstream temp_file;
+			temp_file.open(tempfile_path);
+
+			if(!file || !temp_file)
+				return false;
+
+			std::string line;
+			size_t file_todo_id;
+			size_t i {1};
+
+			while(file>>file_todo_id) 
+			{
+				std::getline(file, line);
+				if(todo_id != file_todo_id) 
+				{
+					temp_file<<i<<line<<'\n';
+					++i;
+				}
+			}
+			
+			file.close();
+			temp_file.close();
+
+			std::remove(filename.c_str());
+			std::rename(tempfile_path.c_str(), filename.c_str());
 
 			todos.erase(todos.begin() + todo_id - 1);
+
+			for(size_t i {0}; i < todos.size(); ++i) 
+			{
+				todos[i].change_id(i + 1);
+			}
+
 			std::cout<<"\nTodo deleted."<<std::endl;
 		}
 	}

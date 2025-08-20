@@ -16,6 +16,9 @@ class Todo {
 		std::string get_description() const {
 			return description;
 		};
+		void change_id(size_t new_id) {
+			id = new_id;
+		}
 		void display() const;
 		bool get_status() const {
 			return completed;
