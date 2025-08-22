@@ -6,6 +6,7 @@
 #include <limits>
 #include <iomanip>
 #include <vector>
+#include <fstream>
 
 //Program constants
 const unsigned int DISPLAY_WIDTH {50};
@@ -27,5 +28,8 @@ void display_linebreak();
 void header(const std::string HEADING);
 
 void display_menu(std::vector<std::string> menu_items);
+
+void format_todo_data(std::fstream &file, size_t id, bool status, std::string description);
+void format_todo_data(std::ofstream &file, size_t id, bool status, std::string description);
 
 #endif

@@ -15,14 +15,13 @@ bool Todos::load()
 		
 		while(file>>id) 
 		{
+			bool status;
+			file>>status;
+
 			std::string description;
-			bool completed;
+			std::getline(file>>std::ws, description);
 
-			std::getline(file>>std::ws, description, ',');
-			file>>completed;
-			file.ignore(); //ignore newline character
-
-			Todo todo {id, description, completed};
+			Todo todo {id, description, status};
 			todos.push_back(todo);
 		}
 
@@ -61,15 +60,17 @@ bool Todos::create()
 	if(!file)
 		return false;
 
-	size_t id = todos.size() + 1;
+	size_t id {todos.size() + 1};
+	bool status {false};
 
-	file<<id<<' '<<description<<','<<0<<'\n';
+	format_todo_data(file, id, status, description);
 
 	file.close();
 
-	std::cout<<"\nNew todo added."<<std::endl;
 	Todo todo {id, description};
 	todos.push_back(todo);
+
+	std::cout<<"\nNew todo added."<<std::endl;
 
 	return true;
 }
@@ -181,15 +182,16 @@ bool Todos::update()
 
 			while(file>>file_todo_id)
 			{
+				bool status;
+				file>>status;
+
+				std::string description;
+				std::getline(file>>std::ws, description);
+
 				if(file_todo_id != todo_id)
-				{
-					std::getline(file, line);
-					temp_file<<file_todo_id<<line<<'\n';
-				}
+					format_todo_data(temp_file, file_todo_id, status, description);
 				else
-				{
-					temp_file<<file_todo_id<<' '<<selected_todo->get_description()<<','<<selected_todo->get_status()<<'\n';
-				}
+					format_todo_data(temp_file, file_todo_id, selected_todo->get_status(), selected_todo->get_description());
 			}
 
 			file.close();
@@ -235,17 +237,22 @@ bool Todos::del() {
 			if(!file || !temp_file)
 				return false;
 
-			std::string line;
+			std::string description;
 			size_t file_todo_id;
-			size_t i {1};
+			size_t id {1};
 
 			while(file>>file_todo_id) 
 			{
-				std::getline(file, line);
+				bool status;
+				file>>status;
+
+				std::string description;
+				std::getline(file>>std::ws, description);
+
 				if(todo_id != file_todo_id) 
 				{
-					temp_file<<i<<line<<'\n';
-					++i;
+					format_todo_data(temp_file, id, status, description);
+					++id;
 				}
 			}
 			

@@ -28,3 +28,11 @@ void display_menu(std::vector<std::string> menu_items) {
 	for(auto item:menu_items)
 		std::cout<<item<<std::endl;
 }
+
+void format_todo_data(std::fstream &file, size_t id, bool status, std::string description) {
+	file<<id<<' '<<status<<' '<<description<<'\n';
+}
+
+void format_todo_data(std::ofstream &file, size_t id, bool status, std::string description) {
+	file<<id<<' '<<status<<' '<<description<<'\n';
+}
