@@ -1,10 +1,11 @@
 #ifndef _TODO_H_
 #define _TODO_H_
 
+#include <iostream>
+#include <iomanip>
 #include <string>
 
-#include "../../utils/utils.h"
-
+#include "../../globals.h"
 class Todo {
 	size_t id;
 	std::string description;

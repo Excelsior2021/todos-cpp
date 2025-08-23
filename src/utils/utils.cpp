@@ -36,3 +36,46 @@ void format_todo_data(std::fstream &file, size_t id, bool status, std::string de
 void format_todo_data(std::ofstream &file, size_t id, bool status, std::string description) {
 	file<<id<<' '<<status<<' '<<description<<'\n';
 }
+
+void modify_todo_in_file_storage(char mode, std::fstream &file, std::ofstream &temp_file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo)  
+{
+	size_t file_todo_id;
+	size_t new_file_id {1};
+
+	while(file>>file_todo_id) 
+	{
+		bool status;
+		file>>status;
+
+		std::string description;
+		std::getline(file>>std::ws, description);
+
+		switch (mode)
+		{
+			case 'u':
+			{
+				if(file_todo_id != todo_id)
+					format_todo_data(temp_file, file_todo_id, status, description);
+				else
+					format_todo_data(temp_file, file_todo_id, selected_todo->get_status(), selected_todo->get_description());
+				break;
+			}
+			case 'd':
+			{
+				if(todo_id != file_todo_id) 
+				{
+					format_todo_data(temp_file, new_file_id, status, description);
+					++new_file_id;
+				}
+			}
+			default:
+				break;
+		}
+	}
+	
+	file.close();
+	temp_file.close();
+
+	std::remove(filename.c_str());
+	std::rename(tempfile_path.c_str(), filename.c_str());
+}

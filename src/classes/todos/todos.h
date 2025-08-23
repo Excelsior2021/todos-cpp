@@ -7,6 +7,7 @@
 #include <sstream>
 #include <filesystem>
 
+#include "../../utils/utils.h"
 #include "../todo/todo.h"
 
 class Todos {

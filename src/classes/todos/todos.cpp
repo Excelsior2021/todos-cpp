@@ -177,28 +177,7 @@ bool Todos::update()
 			if(!file || !temp_file)
 				return false;
 
-			std::string line;
-			size_t file_todo_id;
-
-			while(file>>file_todo_id)
-			{
-				bool status;
-				file>>status;
-
-				std::string description;
-				std::getline(file>>std::ws, description);
-
-				if(file_todo_id != todo_id)
-					format_todo_data(temp_file, file_todo_id, status, description);
-				else
-					format_todo_data(temp_file, file_todo_id, selected_todo->get_status(), selected_todo->get_description());
-			}
-
-			file.close();
-			temp_file.close();
-
-			std::remove(filename.c_str());
-			std::rename(tempfile_path.c_str(), filename.c_str());
+			modify_todo_in_file_storage('u', file, temp_file, todo_id, filename, tempfile_path, selected_todo);
 		}
 	}
 	std::cout<<"\nReturning to main menu..."<<std::endl;
@@ -237,30 +216,7 @@ bool Todos::del() {
 			if(!file || !temp_file)
 				return false;
 
-			std::string description;
-			size_t file_todo_id;
-			size_t id {1};
-
-			while(file>>file_todo_id) 
-			{
-				bool status;
-				file>>status;
-
-				std::string description;
-				std::getline(file>>std::ws, description);
-
-				if(todo_id != file_todo_id) 
-				{
-					format_todo_data(temp_file, id, status, description);
-					++id;
-				}
-			}
-			
-			file.close();
-			temp_file.close();
-
-			std::remove(filename.c_str());
-			std::rename(tempfile_path.c_str(), filename.c_str());
+			modify_todo_in_file_storage('d', file, temp_file, todo_id, filename, tempfile_path);
 
 			todos.erase(todos.begin() + todo_id - 1);
 
