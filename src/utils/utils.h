@@ -23,8 +23,16 @@ void header(const std::string HEADING);
 
 void display_menu(std::vector<std::string> menu_items);
 
-void format_todo_data(std::fstream &file, size_t id, bool status, std::string description);
-void format_todo_data(std::ofstream &file, size_t id, bool status, std::string description);
+template <typename file_type>
+void format_todo_data
+(
+	file_type &file, 
+	size_t id, 
+	bool status, 
+	std::string description) 
+{
+	file<<id<<' '<<status<<' '<<description<<'\n';
+}
 
 void modify_todo_in_file_storage(char mode, std::fstream &file, std::ofstream &temp_file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo = nullptr);
 

@@ -1,7 +1,8 @@
 #include "./utils.h"
 
 //Util for console UI alignment, not a feature of the app
-void ruler(unsigned int length) {
+void ruler(unsigned int length) 
+{
 	std::string digits {"1234567890"};
 	for(size_t i {0}; i < length; ++i)
 		std::cout<<digits;
@@ -9,35 +10,39 @@ void ruler(unsigned int length) {
 }
 
 //Clears the input buffer
-void clear_input() {
+void clear_input() 
+{
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void display_linebreak() {
+void display_linebreak() 
+{
 	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
 }
 
-void header(const std::string HEADING) {
+void header(const std::string HEADING) 
+{
 	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
 	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
 	display_linebreak();
 }
 
-void display_menu(std::vector<std::string> menu_items) {
+void display_menu(std::vector<std::string> menu_items) 
+{
 	display_linebreak();
 	for(auto item:menu_items)
 		std::cout<<item<<std::endl;
 }
 
-void format_todo_data(std::fstream &file, size_t id, bool status, std::string description) {
-	file<<id<<' '<<status<<' '<<description<<'\n';
-}
-
-void format_todo_data(std::ofstream &file, size_t id, bool status, std::string description) {
-	file<<id<<' '<<status<<' '<<description<<'\n';
-}
-
-void modify_todo_in_file_storage(char mode, std::fstream &file, std::ofstream &temp_file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo)  
+void modify_todo_in_file_storage
+(
+	char mode, 
+	std::fstream &file, 
+	std::ofstream &temp_file, 
+	size_t todo_id, std::string filename, 
+	std::string tempfile_path, 
+	Todo* selected_todo
+)  
 {
 	size_t file_todo_id;
 	size_t new_file_id {1};

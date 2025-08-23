@@ -52,8 +52,14 @@ void Todos::display()
 bool Todos::create() 
 {
 	std::string description;
-	std::cout<<"Enter the todo: ";
+	std::cout<<"Enter the todo or enter q to quit: ";
 	std::getline(std::cin, description);
+
+	if(description == "q")
+	{
+		std::cout<<"\nReturning to main menu..."<<std::endl;
+		return true;
+	}
 
 	file.open(filename, std::ofstream::app);
 
@@ -93,7 +99,7 @@ bool Todos::update()
 
 	while(user_input != "q" && user_input != "Q") 
 	{
-		if(!iss>>todo_id)
+		if(!todo_id)
 		{
 			std::cin.clear();
 			std::cout<<"\nPlease enter a valid ID or enter q to quit: ";
@@ -165,8 +171,11 @@ bool Todos::update()
 		};
 	}
 	
-	if(todo_picked) {
-		if(selected_todo->get_status() != todo_original_status 
+	if(todo_picked) 
+	{
+		if
+		(
+			selected_todo->get_status() != todo_original_status 
 			|| selected_todo->get_description() != todo_original_description) 
 		{
 			file.open(filename, std::ifstream::in);
@@ -177,18 +186,38 @@ bool Todos::update()
 			if(!file || !temp_file)
 				return false;
 
-			modify_todo_in_file_storage('u', file, temp_file, todo_id, filename, tempfile_path, selected_todo);
+			modify_todo_in_file_storage
+			(
+				'u', 
+				file, 
+				temp_file, 
+				todo_id, 
+				filename, 
+				tempfile_path, 
+				selected_todo
+			);
 		}
 	}
+
 	std::cout<<"\nReturning to main menu..."<<std::endl;
 	return true;
 }
 
 bool Todos::del() {
+	std::string user_input;
 	size_t todo_id;
-	std::cout<<"Please enter ID of the todo you want to delete: ";
 
-	if(!(std::cin>>todo_id)) 
+	std::cout<<"Please enter ID of the todo you want to delete or enter q to quit: ";
+	std::getline(std::cin, user_input);
+	std::istringstream iss(user_input);
+	iss>>todo_id;
+
+	if(user_input == "Q" || user_input == "q")
+	{
+		std::cout<<"\nReturning to main menu..."<<std::endl;
+		return true;
+	}
+	else if(!todo_id) 
 	{
 		std::cin.clear();
 		std::cout<<"\nPlease enter a valid ID!\n"<<std::endl;
@@ -210,13 +239,22 @@ bool Todos::del() {
 		else 
 		{
 			file.open(filename, std::ifstream::in);
+
 			std::ofstream temp_file;
 			temp_file.open(tempfile_path);
 
 			if(!file || !temp_file)
 				return false;
 
-			modify_todo_in_file_storage('d', file, temp_file, todo_id, filename, tempfile_path);
+			modify_todo_in_file_storage
+			(
+				'd', 
+				file, 
+				temp_file, 
+				todo_id, 
+				filename, 
+				tempfile_path
+			);
 
 			todos.erase(todos.begin() + todo_id - 1);
 
