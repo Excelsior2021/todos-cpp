@@ -92,6 +92,7 @@ bool Todos::update()
 	
 	std::cout<<"Please enter the ID of the todo you want to update or enter q to quit: ";
 	std::getline(std::cin, user_input);
+
 	std::istringstream iss(user_input);
 	iss>>todo_id;
 
@@ -209,6 +210,7 @@ bool Todos::del() {
 
 	std::cout<<"Please enter ID of the todo you want to delete or enter q to quit: ";
 	std::getline(std::cin, user_input);
+
 	std::istringstream iss(user_input);
 	iss>>todo_id;
 
@@ -229,7 +231,6 @@ bool Todos::del() {
 	else 
 	{
 		char confirmation;
-		clear_input();
 		std::cout<<"\nDelete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
 		std::cin>>confirmation;
 		if(confirmation != 'Y' && confirmation != 'y') 
