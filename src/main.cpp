@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <vector>
+#include <array>
 #include <limits>
 
 #include "globals.h"
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	std::vector<std::string> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
+	std::array<std::string, 4> menu_items {"C - create todo", "U - update todo", "D - delete todo", "Q - quit"};
 
 	char selection {};
 

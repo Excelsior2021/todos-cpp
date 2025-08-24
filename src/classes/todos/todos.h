@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
 
 #include "../../utils/utils.h"
 #include "../todo/todo.h"

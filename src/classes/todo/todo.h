@@ -15,6 +15,9 @@ class Todo {
 		Todo(size_t id, std::string description, bool completed = false): 
 			id {id}, description {description}, completed{completed} {}
 		void display() const;
+		size_t get_id() const {
+			return id;
+		}
 		std::string get_description() const
 		{
 			return description;

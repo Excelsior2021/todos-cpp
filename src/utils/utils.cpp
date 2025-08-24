@@ -27,23 +27,23 @@ void header(const std::string HEADING)
 	display_linebreak();
 }
 
-void display_menu(std::vector<std::string> menu_items) 
-{
-	display_linebreak();
-	for(auto item:menu_items)
-		std::cout<<item<<std::endl;
-}
-
 void modify_todo_in_file_storage
 (
 	char mode, 
-	std::fstream &file, 
-	std::ofstream &temp_file, 
+	std::fstream &file,
 	size_t todo_id, std::string filename, 
 	std::string tempfile_path, 
 	Todo* selected_todo
 )  
 {
+	file.open(filename, std::ifstream::in);
+
+	std::ofstream temp_file;
+	temp_file.open(tempfile_path);
+
+	if(!file || !temp_file)
+		return;
+
 	size_t file_todo_id;
 	size_t new_file_id {1};
 

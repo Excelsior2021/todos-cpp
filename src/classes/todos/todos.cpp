@@ -42,7 +42,7 @@ bool Todos::load()
 
 void Todos::display()
 {
-	if(todos.size() == 0) 
+	if(todos.empty()) 
 		std::cout<<"No Todos\n";
 	else
 		for(auto &todo:todos)
@@ -51,15 +51,17 @@ void Todos::display()
 
 bool Todos::create() 
 {
-	std::string description;
+	std::string user_input;
 	std::cout<<"Enter the todo or enter q to quit: ";
-	std::getline(std::cin, description);
+	std::getline(std::cin, user_input);
 
-	if(description == "q")
+	if(user_input == "q")
 	{
 		std::cout<<"\nReturning to main menu..."<<std::endl;
 		return true;
 	}
+
+	std::string description = user_input;
 
 	file.open(filename, std::ofstream::app);
 
@@ -114,8 +116,19 @@ bool Todos::update()
 		} 
 		else 
 		{
-			char selection;		
+			char selection;
+
+			//for indexed based IDs
 			selected_todo = &todos[todo_id - 1];
+
+			// //for non-indeded based IDs
+			// selected_todo = &(*std::find_if(todos.begin(), todos.end(), 
+			// 	[todo_id](const Todo &todo)
+			// 	{ 
+			// 		return todo.get_id() == todo_id; 
+			// 	}
+			// ));
+
 
 			if(initial) 
 			{
@@ -125,7 +138,7 @@ bool Todos::update()
 				todo_picked = true;
 			}
 
-			std::vector<std::string> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", 
+			std::array<std::string, 3> menu_items {"C - change description", selected_todo->get_status() ? "X - incomplete" : "X - complete", 
 				(selected_todo->get_description() != todo_original_description 
 					|| selected_todo->get_status() != todo_original_status) ? "Q - Save changes and return to main menu" : "Q - return to main menu"};
 
@@ -177,27 +190,17 @@ bool Todos::update()
 		if
 		(
 			selected_todo->get_status() != todo_original_status 
-			|| selected_todo->get_description() != todo_original_description) 
-		{
-			file.open(filename, std::ifstream::in);
-
-			std::ofstream temp_file;
-			temp_file.open(tempfile_path);
-
-			if(!file || !temp_file)
-				return false;
-
+			|| selected_todo->get_description() != todo_original_description
+		) 
 			modify_todo_in_file_storage
 			(
-				'u', 
-				file, 
-				temp_file, 
-				todo_id, 
-				filename, 
-				tempfile_path, 
+				'u',
+				file,
+				todo_id,
+				filename,
+				tempfile_path,
 				selected_todo
 			);
-		}
 	}
 
 	std::cout<<"\nReturning to main menu..."<<std::endl;
@@ -233,32 +236,26 @@ bool Todos::del() {
 		char confirmation;
 		std::cout<<"\nDelete todo (ID: "<<todo_id<<"). Are you sure? (Y/N): ";
 		std::cin>>confirmation;
+		
 		if(confirmation != 'Y' && confirmation != 'y') 
 		{
 			std::cout<<"\nTodo not deleted."<<std::endl;
 		} 
 		else 
 		{
-			file.open(filename, std::ifstream::in);
-
-			std::ofstream temp_file;
-			temp_file.open(tempfile_path);
-
-			if(!file || !temp_file)
-				return false;
-
 			modify_todo_in_file_storage
 			(
-				'd', 
-				file, 
-				temp_file, 
-				todo_id, 
-				filename, 
+				'd',
+				file,
+				todo_id,
+				filename,
 				tempfile_path
 			);
 
+			//remove deleted todo from todos vector
 			todos.erase(todos.begin() + todo_id - 1);
 
+			//update the ids of remaining todos
 			for(size_t i {0}; i < todos.size(); ++i) 
 			{
 				todos[i].change_id(i + 1);

@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 #include <iomanip>
-#include <vector>
+#include <array>
 #include <fstream>
 
 #include "../globals.h"
@@ -21,7 +21,13 @@ void display_linebreak();
 
 void header(const std::string HEADING);
 
-void display_menu(std::vector<std::string> menu_items);
+template <size_t N>
+void display_menu(std::array<std::string, N> menu_items) 
+{
+	display_linebreak();
+	for(auto item:menu_items)
+		std::cout<<item<<std::endl;
+}
 
 template <typename file_type>
 void format_todo_data
@@ -34,6 +40,6 @@ void format_todo_data
 	file<<id<<' '<<status<<' '<<description<<'\n';
 }
 
-void modify_todo_in_file_storage(char mode, std::fstream &file, std::ofstream &temp_file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo = nullptr);
+void modify_todo_in_file_storage(char mode, std::fstream &file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo = nullptr);
 
 #endif
