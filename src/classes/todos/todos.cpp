@@ -21,12 +21,13 @@ bool Todos::load()
 			std::string description;
 			std::getline(file>>std::ws, description);
 
-			Todo todo {id, description, status};
-			todos.push_back(todo);
+			todos.emplace_back(id, description, status);
 		}
 
 		file.close();
-	} else {
+	} 
+	else 
+	{
 		fs::create_directory("./data");
 
 		file.open(filename, std::ios::out);
@@ -75,8 +76,7 @@ bool Todos::create()
 
 	file.close();
 
-	Todo todo {id, description};
-	todos.push_back(todo);
+	todos.emplace_back(id, description);
 
 	std::cout<<"\nNew todo added."<<std::endl;
 
@@ -119,7 +119,7 @@ bool Todos::update()
 			char selection;
 
 			//for indexed based IDs
-			selected_todo = &todos[todo_id - 1];
+			selected_todo = &todos.at(todo_id - 1);
 
 			// //for non-indeded based IDs
 			// selected_todo = &(*std::find_if(todos.begin(), todos.end(), 
