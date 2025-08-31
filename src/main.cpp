@@ -11,7 +11,8 @@
 #include "classes/todos/todos.h"
 #include "classes/exceptions/file_exception.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
 	Todos todos {argv[1] ? argv[1]  : "./data/todos.txt"};
 
 	try
@@ -29,7 +30,8 @@ int main(int argc, char* argv[]) {
 
 	char selection {};
 
-	while(selection != 'Q' && selection != 'q') {
+	while(selection != 'Q' && selection != 'q') 
+	{
 		std::cout<<'\n';
 		header("TODOS");
 		todos.display();

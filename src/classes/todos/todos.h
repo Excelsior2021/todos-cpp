@@ -20,11 +20,11 @@ class Todos {
 
 	public:
 		Todos(std::string filename): filename{filename} {};
-		bool load();
+		void load();
 		void display();
-		bool create();
-		bool update();
-		bool del();
+		void create();
+		void update();
+		void del();
 };
 
 #endif

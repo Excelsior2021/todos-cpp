@@ -1,6 +1,6 @@
 #include "./todos.h"
 
-bool Todos::load()
+void Todos::load()
 {
 	namespace fs = std::filesystem;
 
@@ -37,8 +37,6 @@ bool Todos::load()
 
 		file.close();
 	}
-
-	return true;
 }
 
 void Todos::display()
@@ -50,17 +48,14 @@ void Todos::display()
 			todo.display();
 }
 
-bool Todos::create() 
+void Todos::create() 
 {
 	std::string user_input;
 	std::cout<<"Enter the todo or enter q to quit: ";
 	std::getline(std::cin, user_input);
 
-	if(user_input == "q")
-	{
+	if(user_input == "Q" || user_input == "q")
 		std::cout<<"\nReturning to main menu..."<<std::endl;
-		return true;
-	}
 
 	std::string description = user_input;
 
@@ -79,11 +74,9 @@ bool Todos::create()
 	todos.emplace_back(id, description);
 
 	std::cout<<"\nNew todo added."<<std::endl;
-
-	return true;
 }
 
-bool Todos::update() 
+void Todos::update() 
 {
 	std::string user_input;
 	size_t todo_id;
@@ -204,10 +197,9 @@ bool Todos::update()
 	}
 
 	std::cout<<"\nReturning to main menu..."<<std::endl;
-	return true;
 }
 
-bool Todos::del() {
+void Todos::del() {
 	std::string user_input;
 	size_t todo_id;
 
@@ -218,10 +210,7 @@ bool Todos::del() {
 	iss>>todo_id;
 
 	if(user_input == "Q" || user_input == "q")
-	{
 		std::cout<<"\nReturning to main menu..."<<std::endl;
-		return true;
-	}
 	else if(!todo_id) 
 	{
 		std::cin.clear();
@@ -265,6 +254,4 @@ bool Todos::del() {
 		}
 	}
 	clear_input();
-	
-	return true;
 }
