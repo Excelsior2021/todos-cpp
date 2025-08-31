@@ -9,12 +9,18 @@
 #include "utils/utils.h"
 #include "classes/todo/todo.h"
 #include "classes/todos/todos.h"
+#include "classes/exceptions/file_exception.h"
 
 int main(int argc, char* argv[]) {
 	Todos todos {argv[1] ? argv[1]  : "./data/todos.txt"};
 
-	if(!todos.load()) {
-		std::cerr<<"Cannot load file."<<std::endl;
+	try
+	{
+		todos.load();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr<<e.what();
 		std::cout<<"\nClosing app."<<std::endl;
 		return 1;
 	}
@@ -33,7 +39,6 @@ int main(int argc, char* argv[]) {
 		std::cout<<'\n';
 		clear_input();
 
-		//handle methods returning false!!!!!!!!!!
 		switch (selection) {
 			case 'C': 
 			case 'c': {

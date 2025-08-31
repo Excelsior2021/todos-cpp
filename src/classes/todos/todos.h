@@ -10,6 +10,7 @@
 
 #include "../../utils/utils.h"
 #include "../todo/todo.h"
+#include "../exceptions/file_exception.h"
 
 class Todos {
 	std::vector<Todo> todos;

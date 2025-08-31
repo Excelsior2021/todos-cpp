@@ -10,6 +10,7 @@
 
 #include "../globals.h"
 #include "../classes/todo/todo.h"
+#include "../classes/exceptions/file_exception.h"
 
 //Util for console UI alignment, not a feature of the app
 void ruler(unsigned int length);
@@ -19,13 +20,13 @@ void clear_input();
 
 void display_linebreak();
 
-void header(const std::string HEADING);
+void header(const std::string &HEADING);
 
 template <size_t N>
-void display_menu(std::array<std::string, N> menu_items) 
+void display_menu(const std::array<std::string, N> &menu_items) 
 {
 	display_linebreak();
-	for(auto item:menu_items)
+	for(const auto &item:menu_items)
 		std::cout<<item<<std::endl;
 }
 
@@ -33,9 +34,9 @@ template <typename file_type>
 void format_todo_data
 (
 	file_type &file, 
-	size_t id, 
-	bool status, 
-	std::string description) 
+	const size_t &id, 
+	const bool &status, 
+	const std::string &description) 
 {
 	file<<id<<' '<<status<<' '<<description<<'\n';
 }

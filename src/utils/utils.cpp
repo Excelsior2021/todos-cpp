@@ -20,7 +20,7 @@ void display_linebreak()
 	std::cout<<std::setw(DISPLAY_WIDTH)<<std::setfill('-')<<""<<std::endl<<std::setfill(' ');
 }
 
-void header(const std::string HEADING) 
+void header(const std::string &HEADING) 
 {
 	const auto HEADING_WIDTH {(DISPLAY_WIDTH/2)+(HEADING.length()/2)};
 	std::cout<<std::setw(HEADING_WIDTH)<<HEADING<<std::endl;
@@ -42,7 +42,7 @@ void modify_todo_in_file_storage
 	temp_file.open(tempfile_path);
 
 	if(!file || !temp_file)
-		return;
+		throw FileException{};
 
 	size_t file_todo_id;
 	size_t new_file_id {1};

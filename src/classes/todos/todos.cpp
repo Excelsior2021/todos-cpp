@@ -9,7 +9,7 @@ bool Todos::load()
 		file.open(filename);
 
 		if(!file)
-			return false;
+			throw FileException{};
 
 		size_t id;
 		
@@ -33,7 +33,7 @@ bool Todos::load()
 		file.open(filename, std::ios::out);
 
 		if(!file)
-			return false;
+			throw FileException{};
 
 		file.close();
 	}
@@ -67,7 +67,7 @@ bool Todos::create()
 	file.open(filename, std::ofstream::app);
 
 	if(!file)
-		return false;
+		throw FileException{};
 
 	size_t id {todos.size() + 1};
 	bool status {false};
@@ -121,7 +121,7 @@ bool Todos::update()
 			//for indexed based IDs
 			selected_todo = &todos.at(todo_id - 1);
 
-			// //for non-indeded based IDs
+			// //for non-indexed based IDs
 			// selected_todo = &(*std::find_if(todos.begin(), todos.end(), 
 			// 	[todo_id](const Todo &todo)
 			// 	{ 
