@@ -54,26 +54,28 @@ void Todos::create()
 	std::cout<<"Enter the todo or enter q to quit: ";
 	std::getline(std::cin, user_input);
 
-	if(user_input == "Q" || user_input == "q")
+	if(user_input == "Q" || user_input == "q") 
 		std::cout<<"\nReturning to main menu..."<<std::endl;
+	else 
+	{
+		std::string description = user_input;
 
-	std::string description = user_input;
+		file.open(filename, std::ofstream::app);
 
-	file.open(filename, std::ofstream::app);
+		if(!file)
+			throw FileException{};
 
-	if(!file)
-		throw FileException{};
+		size_t id {todos.size() + 1};
+		bool status {false};
 
-	size_t id {todos.size() + 1};
-	bool status {false};
+		format_todo_data(file, id, status, description);
 
-	format_todo_data(file, id, status, description);
+		file.close();
 
-	file.close();
+		todos.emplace_back(id, description);
 
-	todos.emplace_back(id, description);
-
-	std::cout<<"\nNew todo added."<<std::endl;
+		std::cout<<"\nNew todo added."<<std::endl;
+	}
 }
 
 void Todos::update() 
@@ -253,5 +255,4 @@ void Todos::del() {
 			std::cout<<"\nTodo deleted."<<std::endl;
 		}
 	}
-	clear_input();
 }
