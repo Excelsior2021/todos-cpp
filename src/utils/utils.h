@@ -36,9 +36,10 @@ void format_todo_data
 	file_type &file, 
 	const size_t &id, 
 	const bool &status, 
-	const std::string &description) 
+	const std::string &description
+) 
 {
-	file<<id<<' '<<status<<' '<<description<<'\n';
+	file<<id<<' '<<status<<' '<<description<<'\n'; //writing to file
 }
 
 void modify_todo_in_file_storage(char mode, std::fstream &file, size_t todo_id, std::string filename, std::string tempfile_path, Todo* selected_todo = nullptr);

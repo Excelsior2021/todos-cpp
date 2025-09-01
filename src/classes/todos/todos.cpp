@@ -80,12 +80,10 @@ void Todos::create()
 
 void Todos::update() 
 {
-	std::string user_input;
 	size_t todo_id;
-	bool todo_original_status;
-	std::string todo_original_description;
-	bool initial = true;
-	bool todo_picked = false;
+	bool todo_original_status, initial = true, todo_picked = false;
+	std::string user_input, todo_original_description;
+	Todo* selected_todo;
 	
 	std::cout<<"Please enter the ID of the todo you want to update or enter q to quit: ";
 	std::getline(std::cin, user_input);
@@ -93,9 +91,7 @@ void Todos::update()
 	std::istringstream iss(user_input);
 	iss>>todo_id;
 
-	Todo* selected_todo;
-
-	while(user_input != "q" && user_input != "Q") 
+	while(user_input != "Q" && user_input != "q") 
 	{
 		if(!todo_id)
 		{
@@ -111,7 +107,7 @@ void Todos::update()
 		} 
 		else 
 		{
-			char selection;
+			char selection {};
 
 			//for indexed based IDs
 			selected_todo = &todos.at(todo_id - 1);
@@ -123,7 +119,6 @@ void Todos::update()
 			// 		return todo.get_id() == todo_id; 
 			// 	}
 			// ));
-
 
 			if(initial) 
 			{
@@ -202,8 +197,8 @@ void Todos::update()
 }
 
 void Todos::del() {
-	std::string user_input;
 	size_t todo_id;
+	std::string user_input;
 
 	std::cout<<"Please enter ID of the todo you want to delete or enter q to quit: ";
 	std::getline(std::cin, user_input);
@@ -248,9 +243,7 @@ void Todos::del() {
 
 			//update the ids of remaining todos
 			for(size_t i {0}; i < todos.size(); ++i) 
-			{
 				todos[i].change_id(i + 1);
-			}
 
 			std::cout<<"\nTodo deleted."<<std::endl;
 		}
